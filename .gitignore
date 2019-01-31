@@ -6,7 +6,11 @@
 *.exe
 *.o
 *.so
+
+# Other foldres #
+##################
 __pycache__
+.vscode
 
 # Packages #
 ############
