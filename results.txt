@@ -1,0 +1,12 @@
+parsing file: /home/steven/Documents/mobile_comp/mobileLab1/activity-test-dataset/team7_4.txt
+parsing file: /home/steven/Documents/mobile_comp/mobileLab1/activity-test-dataset/team7_2.txt
+parsing file: /home/steven/Documents/mobile_comp/mobileLab1/activity-test-dataset/team7_3.txt
+parsing file: /home/steven/Documents/mobile_comp/mobileLab1/activity-test-dataset/team7_1.txt
+team7_4.txt
+varZ is: 326.3245318151513 - less than 5,000, identified as standing
+team7_2.txt
+varZ is: 2817817.7101641716 - greater than 300,000, identified as jumping
+team7_3.txt
+midPowerZ is: 0.008098801017137903 - less than 0.2, identified as walking
+team7_1.txt
+midPowerZ is: 0.27832258398729093 - greater than 0.2, identified as driving
