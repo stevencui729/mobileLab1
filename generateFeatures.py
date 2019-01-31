@@ -17,13 +17,18 @@ def generateFeatures(trace):
 
     powerSpectrums = {}
     spectrumPeaks = {}
+    midPowers = {}
     for channel in channels:
         normData = normalizeFFT(trace[channel])
         spectrum = np.abs(np.fft.fft(normData))
         spectrum *= spectrum
         powerSpectrums[channel] = spectrum
         maxInd = np.argmax(spectrum)#[:int(n/2)+1])
-        energy = np.sum(spectrum)
-        top = spectrum[maxInd] / energy #Might want energy for something later
+        totalEnergy = np.sum(spectrum)
+        #top = spectrum[maxInd] / energy #Might want energy for something later
         spectrumPeaks[channel] = maxInd
-    return varDict, powerSpectrums, spectrumPeaks, relTime
+        midPoint = len(spectrum)/2
+        minCut = int(midPoint-midPoint/2)
+        maxCut = int(midPoint+midPoint/2)
+        midPowers[channel] = np.sum(spectrum[minCut:maxCut])/totalEnergy
+    return varDict, powerSpectrums, midPowers, relTime
