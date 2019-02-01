@@ -4,8 +4,8 @@ import generateFeatures
 import matplotlib.pyplot as plt
 
 def varGraphs(data, key):
-    #activities = ["Driving", "Jumping", "Standing", "Walking"]
-    activities = ["Jumping", "Standing"]
+    activities = ["Driving", "Standing", "Walking"]
+    #activities = ["Jumping", "Standing"]
     colors = ['red','green','blue','purple']
     for activity, color, i in zip(activities, colors, np.arange(len(activities))):
         #varDict, _, _, _ = generateFeatures.generateFeatures(data[0])
@@ -54,19 +54,20 @@ def main():
     plotMidSpectrums(data, 'yAccl')
     fig = nextFig(fig)
     plotMidSpectrums(data, 'zAccl')
+
     # varGraphs(data, 'yAccl')
 
     # fig = nextFig(fig)
     # varGraphs(data, 'xAccl')
 
-    # fig = nextFig(fig)
-    # varGraphs(data, 'zAccl')
-    # for i in range(5):
-    #     fig = nextFig(fig)
-    #     plotSpectrum(drivingData[i*3], 'yAccl', 'drive')
+    fig = nextFig(fig)
+    varGraphs(data, 'zAccl')
+    for i in range(2):
+        fig = nextFig(fig)
+        plotSpectrum(drivingData[i*3], 'yAccl', 'drive')
 
-    #     fig = nextFig(fig)
-    #     plotSpectrum(walkingData[i*3], 'yAccl', 'walk')
+        fig = nextFig(fig)
+        plotSpectrum(walkingData[i*3], 'yAccl', 'walk')
 
 if __name__ == "__main__":
     main()
