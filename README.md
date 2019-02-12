@@ -1,2 +1,2 @@
-# mobileLab1
-Mobile Computing Lab 1
+# mobileLabs
+Mobile Computing Labs 
