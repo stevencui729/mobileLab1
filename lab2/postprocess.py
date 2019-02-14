@@ -4,8 +4,6 @@ import numpy as np
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib as mp
-import matplotlib.transforms as tf
-from scipy import ndimage
 
 
 def visualize(data):
@@ -31,7 +29,6 @@ def visualize(data):
         cax, _ = mp.colorbar.make_axes(ax)
         cbar = mp.colorbar.ColorbarBase(cax, cmap=cmap, norm=normalize)
         fig = plt.scatter(x_vals, y_vals, c=rss_vals, cmap=cmap)
-        
         
         plt.show()
 
