@@ -13,10 +13,7 @@ def parse_data_file(filepath):
     MAC_B = "ec:d0:9f:db:e8:1f"
     MAC_C = "80:e6:50:1b:a7:80"
     MAC_GROUND = "44:91:60:d3:d6:94"
-    mac_a = {MAC_A: {}}
-    mac_b = {MAC_B: {}}
-    mac_c = {MAC_C: {}}
-    mac_gr = {MAC_GROUND: {}}
+    mac_data = {MAC_A: {}, MAC_B: {}, MAC_C: {}, MAC_GROUND: {}}
 
     for data_line in loaded_raw_data:
         mac = data_line["mac"]
@@ -24,19 +21,19 @@ def parse_data_file(filepath):
         loc_y = data_line["loc_y"]
         rss = int(data_line["rss"])
         if mac == MAC_A:
-            mac_a[MAC_A][(loc_x, loc_y)] = rss
+            mac_data[MAC_A][(loc_x, loc_y)] = rss
         elif mac == MAC_B:
-            mac_b[MAC_B][(loc_x, loc_y)] = rss
+            mac_data[MAC_B][(loc_x, loc_y)] = rss
         elif mac == MAC_C:
-            mac_c[MAC_C][(loc_x, loc_y)] = rss
+            mac_data[MAC_C][(loc_x, loc_y)] = rss
         elif mac == MAC_GROUND:
-            mac_gr[MAC_GROUND][(loc_x, loc_y)] = rss
+            mac_data[MAC_GROUND][(loc_x, loc_y)] = rss
         else:
             print("Error: unexpected MAC address")
             print(mac)
             return -1
 
-    return [mac_a, mac_b, mac_c, mac_gr]
+    return mac_data
 
 def fetch_abs_paths(directory):
     """
@@ -57,39 +54,27 @@ def parse_data_directory(directory):
     MAC_B = "ec:d0:9f:db:e8:1f"
     MAC_C = "80:e6:50:1b:a7:80"
     MAC_GROUND = "44:91:60:d3:d6:94"
-    mac_a = {MAC_A: {}}
-    mac_b = {MAC_B: {}}
-    mac_c = {MAC_C: {}}
-    mac_gr = {MAC_GROUND: {}}
+    dir_mac_data = {MAC_A: {}, MAC_B: {}, MAC_C: {}, MAC_GROUND: {}}
 
     filepaths = fetch_abs_paths(directory)
 
     for filepath in filepaths:
-        list_macs = parse_data_file(filepath)
-        for mac in list_macs:
-            for key, dict in mac.items():
-                if key == MAC_A:
-                    mac_a[MAC_A].update(dict)
-                elif key == MAC_B:
-                    mac_b[MAC_B].update(dict)
-                elif key == MAC_C:
-                    mac_c[MAC_C].update(dict)
-                elif key == MAC_GROUND:
-                    mac_gr[MAC_GROUND].update(dict)
+        file_mac_data = parse_data_file(filepath)
+        dir_mac_data[MAC_A].update(file_mac_data[MAC_A])
+        dir_mac_data[MAC_B].update(file_mac_data[MAC_B])
+        dir_mac_data[MAC_C].update(file_mac_data[MAC_C])
+        dir_mac_data[MAC_GROUND].update(file_mac_data[MAC_GROUND])
 
-    return [mac_a, mac_b, mac_c, mac_gr]
+    return dir_mac_data
 
 def main():
-    # macs = parse_data_file("final_lab2_data/rss-1522970318.944313.txt")
-    # macs = parse_data_file("final_lab2_data/rss-1522970573.742740.txt")
-    list_macs = parse_data_directory("final_lab2_data")
-    for mac in list_macs:
-        for key, dict in mac.items():
-            print(key)
-            print(dict)
-            # for tuple, rss in dict.items():
-            #     print(tuple)
-            #     print(rss)
+    #macs = parse_data_file("final_lab2_data/rss-1522970318.944313.txt")
+    #macs = parse_data_file("final_lab2_data/rss-1522970573.742740.txt")
+    directory_data = parse_data_directory("final_lab2_data")
+    # for key, dict in directory_data.items():
+    #     print(key)
+    #     for x in list(dict)[0:30]:
+    #         print ("key {}, value {} ".format(x,  dict[x]))
 
 if __name__ == main():
     main()
