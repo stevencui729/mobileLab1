@@ -69,8 +69,7 @@ def parse_data_directory(directory):
 
 def view_summary_stats(directory):
     directory_data = parse_data_directory(directory)
-    all_x_values = []
-    all_y_values = []
+
     for key, dict in directory_data.items():
         print("Statistics for MAC : " + key)
         x_values = []
@@ -84,8 +83,7 @@ def view_summary_stats(directory):
         print("Min y: ", min(y_values))
         print("Max y: ", max(y_values))
         print("Mean y: ", (sum(y_values)/len(y_values)))
-        all_x_values.extend(x_values)
-        all_y_values.extend(y_values)
+
 
 def main():
     #macs = parse_data_file("final_lab2_data/rss-1522970318.944313.txt")
