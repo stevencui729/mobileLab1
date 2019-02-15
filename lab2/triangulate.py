@@ -7,15 +7,15 @@ def triangulateSource(data):
     bestN = 0
     bestError = np.inf
     for n in np.arange(1, 5, .05):
-        A = generateA(data, n)
+        A = generateA(data, pointList, n)
         print(len(pointList))
         print(A.shape)
+        b = generateb(data, pointList, n)
+        print(b.shape)
         1/0
-        b = generateb(data)
         theta = (A.T*A).I*A.T*b
 
-def generateA(data,n):
-    pointList = list(data.keys())
+def generateA(data, pointList, n):
     point1 = pointList[0]
     AList = []
     normPower1 = data[point1]**(2/n)
@@ -28,6 +28,16 @@ def generateA(data,n):
         elm3 = normPower1 - normPower2
         AList.append([elm1, elm2, elm3])
     return np.matrix(AList)
+
+def generateb(data, pointList, n):
+    point1 = pointList[0]
+    bList = []
+    RHS = data[point1]**(2/n) *(point1[0]**2+ point1[1]**2)
+    for point in pointList[1:]:
+        LHS = data[point]**(2/n) *(point[0]**2+ point[1]**2)
+        bList.append([LHS-RHS])
+    return np.matrix(bList)
+
         
 
 def main():
