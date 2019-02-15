@@ -67,14 +67,29 @@ def parse_data_directory(directory):
 
     return dir_mac_data
 
+def view_summary_stats(directory):
+    directory_data = parse_data_directory(directory)
+
+    for key, dict in directory_data.items():
+        print("Statistics for MAC : " + key)
+        x_values = []
+        y_values = []
+        for tuple, rss in dict.items():
+            x_values.append(tuple[0])
+            y_values.append(tuple[1])
+        print("Min x: ", min(x_values))
+        print("Max x: ", max(x_values))
+        print("Mean x: ", (sum(x_values)/len(x_values)))
+        print("Min y: ", min(y_values))
+        print("Max y: ", max(y_values))
+        print("Mean y: ", (sum(y_values)/len(y_values)))
+
+
 def main():
     #macs = parse_data_file("final_lab2_data/rss-1522970318.944313.txt")
     #macs = parse_data_file("final_lab2_data/rss-1522970573.742740.txt")
     directory_data = parse_data_directory("final_lab2_data")
-    # for key, dict in directory_data.items():
-    #     print(key)
-    #     for x in list(dict)[0:30]:
-    #         print ("key {}, value {} ".format(x,  dict[x]))
+    view_summary_stats("final_lab2_data")
 
 if __name__ == main():
     main()
