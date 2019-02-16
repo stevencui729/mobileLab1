@@ -1,7 +1,7 @@
 import os
 import json
 
-def parse_data_file(filepath):
+def parse_data_file(filepath, pos= False):
     """
     return list of dictionaries, each dictionary representing data for a particular MAC address
     """
@@ -19,16 +19,18 @@ def parse_data_file(filepath):
         mac = data_line["mac"]
         loc_x = data_line["loc_x"]
         loc_y = data_line["loc_y"]
-        rss = int(data_line["rss"])
-        # rss = abs(int(data_line["rss"]))
+        if pos:
+            rss = abs(int(data_line["rss"]))
+        else:
+            rss = int(data_line["rss"])
         if mac == MAC_A:
-            mac_data[MAC_A][(loc_x, loc_y)] = rss
+            mac_data[MAC_A][(loc_y, loc_x)] = rss
         elif mac == MAC_B:
-            mac_data[MAC_B][(loc_x, loc_y)] = rss
+            mac_data[MAC_B][(loc_y, loc_x)] = rss
         elif mac == MAC_C:
-            mac_data[MAC_C][(loc_x, loc_y)] = rss
+            mac_data[MAC_C][(loc_y, loc_x)] = rss
         elif mac == MAC_GROUND:
-            mac_data[MAC_GROUND][(loc_x, loc_y)] = rss
+            mac_data[MAC_GROUND][(loc_y, loc_x)] = rss
         else:
             print("Error: unexpected MAC address")
             print(mac)
@@ -42,11 +44,11 @@ def fetch_abs_paths(directory):
     """
     filepaths = []
     for dirpath,_,filenames in os.walk(directory):
-       for f in filenames:
-           filepaths.append(os.path.abspath(os.path.join(dirpath, f)))
+        for f in filenames:
+            filepaths.append(os.path.abspath(os.path.join(dirpath, f)))
     return filepaths
 
-def parse_data_directory(directory):
+def parse_data_directory(directory, pos= False):
     """
     for all rss data files in given directory
     return list of dictionaries, each dictionary containing data for a particular MAC address
@@ -60,13 +62,23 @@ def parse_data_directory(directory):
     filepaths = fetch_abs_paths(directory)
 
     for filepath in filepaths:
-        file_mac_data = parse_data_file(filepath)
+        file_mac_data = parse_data_file(filepath, pos)
         dir_mac_data[MAC_A].update(file_mac_data[MAC_A])
         dir_mac_data[MAC_B].update(file_mac_data[MAC_B])
         dir_mac_data[MAC_C].update(file_mac_data[MAC_C])
         dir_mac_data[MAC_GROUND].update(file_mac_data[MAC_GROUND])
-
+    #flippedData = flipData(dir_mac_data)
     return dir_mac_data
+
+def flipData(data):
+    for macAddr in data.keys():
+        maxRSS = 0
+        for point in data[macAddr].keys():
+            if data[macAddr][point] > maxRSS:
+                maxRSS = data[macAddr][point]
+        for point in data[macAddr].keys():
+            data[macAddr][point] = maxRSS - data[macAddr][point]
+    return data
 
 def view_summary_stats(directory):
     directory_data = parse_data_directory(directory)
@@ -93,5 +105,5 @@ def main():
     # directory_data = parse_data_directory("final_lab2_data")
     # view_summary_stats("final_lab2_data")
 
-if __name__ == main():
+if __name__ == "__main__":
     main()
