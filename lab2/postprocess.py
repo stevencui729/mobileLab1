@@ -39,7 +39,7 @@ def visualize(data):
 
 def main():
     print("hi")
-    test_data = parse_data.parse_data_directory("./final_lab2_data")
+    test_data = parse_data.parse_data_directory("./final_lab2_data", pos = True)
     visualize(test_data)
 
 

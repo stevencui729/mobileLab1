@@ -4,13 +4,14 @@ import parse_data
 import math
 from math import sqrt, isnan
 import csv
+import cmath
 
 def pointDist(p1, p2):
     return sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2  )
 
 def changePoint1(data, npoints):
     pointList = list(data.keys())
-    p1List = np.linspace(0, len(pointList), npoints)
+    p1List = np.linspace(0, len(pointList), npoints, endpoint=False)
     with open('varyp1.csv', mode='w') as f:
         stat_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         stat_writer.writerow(["Origin", "Error", "N"])
@@ -58,16 +59,18 @@ def triangulateSource(data, p1idx = 0, log = False):
                 stat_writer.writerow([originCandidate, residual, n])
     return (bestOrigin, bestError, bestN)
 
-
+def rss2power(rss):
+    power = 10**(rss/10)
+    return power
 
 def generateA(data, pointList, n):
     point1 = pointList[0]
     AList = []
-    normPower1 = math.pow(data[point1],(2/n))
+    normPower1 = rss2power(data[point1])**(2/n)
     normPower1X = normPower1*point1[0]
     normPower1Y = normPower1*point1[1]
     for point in pointList[1:]:
-        normPower2 =data[point]**(2/n)
+        normPower2 =rss2power(data[point])**(2/n)
         elm1 = 2*(normPower2*point[0] - normPower1X)
         elm2 = 2*(normPower2*point[1] - normPower1Y)
         elm3 = normPower1 - normPower2
@@ -77,25 +80,23 @@ def generateA(data, pointList, n):
 def generateb(data, pointList, n):
     point1 = pointList[0]
     bList = []
-    RHS = data[point1]**(2/n) *(point1[0]**2+ point1[1]**2)
+    RHS = rss2power(data[point1])**(2/n) * (point1[0]**2+ point1[1]**2)
     for point in pointList[1:]:
-        LHS = data[point]**(2/n) *(point[0]**2+ point[1]**2)
+        LHS = rss2power(data[point])**(2/n) *(point[0]**2+ point[1]**2)
         bList.append([LHS-RHS])
     return np.matrix(bList)
 
         
 
 def main():
-    print("henlo")
-    
-    data = parse_data.parse_data_directory("./final_lab2_data")
+    data = parse_data.parse_data_directory("./final_lab2_data", pos=False)
     MAClist = list(data.keys())
-    print(MAClist[3])
-    origin, error, n = triangulateSource(data[MAClist[3]], log = True)
+    #print(MAClist[3])
+    #origin, error, n = triangulateSource(data[MAClist[3]], log = True)
     print("Origin:", origin)
     print("error:", error)
     print("N", n)
-    #changePoint1(data[MAClist[3]], 100)
+    changePoint1(data[MAClist[3]], 10)
 
 if __name__ == "__main__":
     main()
