@@ -19,7 +19,8 @@ def parse_data_file(filepath):
         mac = data_line["mac"]
         loc_x = data_line["loc_x"]
         loc_y = data_line["loc_y"]
-        rss = abs(int(data_line["rss"]))
+        rss = int(data_line["rss"])
+        # rss = abs(int(data_line["rss"]))
         if mac == MAC_A:
             mac_data[MAC_A][(loc_x, loc_y)] = rss
         elif mac == MAC_B:
@@ -83,13 +84,14 @@ def view_summary_stats(directory):
         print("Min y: ", min(y_values))
         print("Max y: ", max(y_values))
         print("Mean y: ", (sum(y_values)/len(y_values)))
-
+    
 
 def main():
+    pass
     #macs = parse_data_file("final_lab2_data/rss-1522970318.944313.txt")
     #macs = parse_data_file("final_lab2_data/rss-1522970573.742740.txt")
-    directory_data = parse_data_directory("final_lab2_data")
-    view_summary_stats("final_lab2_data")
+    # directory_data = parse_data_directory("final_lab2_data")
+    # view_summary_stats("final_lab2_data")
 
 if __name__ == main():
     main()
