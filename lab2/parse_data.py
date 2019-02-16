@@ -96,13 +96,14 @@ def view_summary_stats(directory):
         print("Min y: ", min(y_values))
         print("Max y: ", max(y_values))
         print("Mean y: ", (sum(y_values)/len(y_values)))
-
+    
 
 def main():
+    pass
     #macs = parse_data_file("final_lab2_data/rss-1522970318.944313.txt")
     #macs = parse_data_file("final_lab2_data/rss-1522970573.742740.txt")
-    directory_data = parse_data_directory("final_lab2_data")
-    view_summary_stats("final_lab2_data")
+    # directory_data = parse_data_directory("final_lab2_data")
+    # view_summary_stats("final_lab2_data")
 
 if __name__ == "__main__":
     main()
