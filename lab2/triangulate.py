@@ -33,7 +33,11 @@ def triangulateSource(data, p1idx = 0, log = False):
     bestError = np.inf
     bestOrigin = (0,0)
     print("Triangulating....")
-    with open('Error&N.csv', mode='w') as f:
+    if log == False:
+        mode = 'r'
+    else:
+        mode = 'w'
+    with open('Error&N.csv', mode=mode) as f:
         if log:
             stat_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             stat_writer.writerow(["Origin", "Error", "N"])
@@ -91,8 +95,8 @@ def generateb(data, pointList, n):
 def main():
     data = parse_data.parse_data_directory("./final_lab2_data", pos=False)
     MAClist = list(data.keys())
-    #print(MAClist[3])
-    #origin, error, n = triangulateSource(data[MAClist[3]], log = True)
+    print(MAClist[3])
+    origin, error, n = triangulateSource(data[MAClist[3]], log = True)
     print("Origin:", origin)
     print("error:", error)
     print("N", n)
