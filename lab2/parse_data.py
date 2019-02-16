@@ -19,7 +19,7 @@ def parse_data_file(filepath):
         mac = data_line["mac"]
         loc_x = data_line["loc_x"]
         loc_y = data_line["loc_y"]
-        rss = int(data_line["rss"])
+        rss = abs(int(data_line["rss"]))
         if mac == MAC_A:
             mac_data[MAC_A][(loc_x, loc_y)] = rss
         elif mac == MAC_B:
