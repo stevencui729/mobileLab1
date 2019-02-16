@@ -73,7 +73,7 @@ def data_to_dfs(data):
 
 
 def sliding_window_clean(dfs):
-    win_size = 1
+    win_size = 5
     for key in dfs:
         cur_df = dfs[key]
         num_vals = cur_df.shape[0]
@@ -100,15 +100,24 @@ def sliding_window_clean(dfs):
         indices_to_remove = set(indices_to_remove)
         cleaned_cur_df = cur_df.drop(indices_to_remove)
         print(cleaned_cur_df.shape)
-        pickle_path = key+"_pickle"
+        pickle_path = key+"_winsize"+str(win_size)+"_pickle"
         cleaned_cur_df.to_pickle(pickle_path)
+
+
+def pickle_to_old_format(file_path):
+    df = pd.read_pickle(file_path)
+    new_dict = {}
+    for i, row in df.iterrows():
+        new_dict[(row['x'], row['y'])] = row['rss']
+    return new_dict
 
 
 def main():
     print("hi")
     test_data = parse_data.parse_data_directory("./final_lab2_data")
-    dfs = data_to_dfs(test_data)
-    sliding_window_clean(dfs)
+    # dfs = data_to_dfs(test_data)
+    # sliding_window_clean(dfs)
+    old_format_pickle = pickle_to_old_format("./44:91:60:d3:d6:94_pickle")
     # visualize(test_data)
 
 
