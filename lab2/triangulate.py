@@ -5,6 +5,8 @@ import math
 from math import sqrt, isnan
 import csv
 import cmath
+import pandas
+import postprocess
 
 def pointDist(p1, p2):
     return sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2  )
@@ -96,11 +98,17 @@ def main():
     data = parse_data.parse_data_directory("./final_lab2_data", pos=False)
     MAClist = list(data.keys())
     print(MAClist[3])
-    origin, error, n = triangulateSource(data[MAClist[3]], log = True)
-    print("Origin:", origin)
-    print("error:", error)
-    print("N", n)
-    changePoint1(data[MAClist[3]], 10)
+    groundSet = postprocess.pickle_to_old_format("44:91:60:d3:d6:94_pickle")
+    set1 = postprocess.pickle_to_old_format("80:e6:50:1b:a7:80_pickle")
+    set2 = postprocess.pickle_to_old_format("f8:cf:c5:97:e0:9e_pickle")
+    set3 = postprocess.pickle_to_old_format("ec:d0:9f:db:e8:1f_pickle")
+    for i, data in enumerate([groundSet, set1, set2, set3]):
+        origin, error, n = triangulateSource(data, log = True)
+        print(i)
+        print("Origin:", origin)
+        print("error:", error)
+        print("N", n)
+    #changePoint1(groundSet, 10)
 
 if __name__ == "__main__":
     main()
