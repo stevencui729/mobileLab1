@@ -41,8 +41,8 @@ def fetch_abs_paths(directory):
     """
     filepaths = []
     for dirpath,_,filenames in os.walk(directory):
-       for f in filenames:
-           filepaths.append(os.path.abspath(os.path.join(dirpath, f)))
+        for f in filenames:
+            filepaths.append(os.path.abspath(os.path.join(dirpath, f)))
     return filepaths
 
 def parse_data_directory(directory):
@@ -64,9 +64,17 @@ def parse_data_directory(directory):
         dir_mac_data[MAC_B].update(file_mac_data[MAC_B])
         dir_mac_data[MAC_C].update(file_mac_data[MAC_C])
         dir_mac_data[MAC_GROUND].update(file_mac_data[MAC_GROUND])
-
+    #flippedData = flipData(dir_mac_data)
     return dir_mac_data
-
+def flipData(data):
+    for macAddr in data.keys():
+        maxRSS = 0
+        for point in data[macAddr].keys():
+            if data[macAddr][point] > maxRSS:
+                maxRSS = data[macAddr][point]
+        for point in data[macAddr].keys():
+            data[macAddr][point] = maxRSS - data[macAddr][point]
+    return data
 def view_summary_stats(directory):
     directory_data = parse_data_directory(directory)
 
@@ -91,5 +99,5 @@ def main():
     directory_data = parse_data_directory("final_lab2_data")
     view_summary_stats("final_lab2_data")
 
-if __name__ == main():
+if __name__ == "__main__":
     main()
