@@ -91,8 +91,10 @@ def sliding_window_clean(dfs):
             # print(dict(zip(unique, counts)))
 
             in_window = cur_df[logical_window]
-            Q1 = in_window['rss'].quantile(0.25)
-            Q3 = in_window['rss'].quantile(0.75)
+            #Q1 = in_window['rss'].quantile(0.25)
+            #Q3 = in_window['rss'].quantile(0.75)
+            Q1 = in_window['rss'].quantile(0.1)
+            Q3 = in_window['rss'].quantile(0.6)
             IQR = Q3 - Q1
             to_remove = in_window[(in_window['rss'] < (Q1 - 1.5 * IQR)) | (in_window['rss'] > (Q3 + 1.5 * IQR))]
             indices_to_remove.extend(to_remove.index.values)
@@ -115,10 +117,10 @@ def pickle_to_old_format(file_path):
 def main():
     print("hi")
     test_data = parse_data.parse_data_directory("./final_lab2_data")
-    # dfs = data_to_dfs(test_data)
-    # sliding_window_clean(dfs)
+    dfs = data_to_dfs(test_data)
+    sliding_window_clean(dfs)
     old_format_pickle = pickle_to_old_format("./44:91:60:d3:d6:94_pickle")
-    # visualize(test_data)
+    visualize(test_data)
 
 
 if __name__ == "__main__":

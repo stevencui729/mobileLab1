@@ -7,6 +7,7 @@ import csv
 import cmath
 import pandas
 import postprocess
+import sys
 
 def pointDist(p1, p2):
     return sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2  )
@@ -23,10 +24,19 @@ def changePoint1(data, npoints):
             #print("\tOrigin, Error, N:",Origin, Error, N)
             stat_writer.writerow([Origin, Error, N])
         
-        
+def hipassfilter(data, threshold):
+    pointlist = list(data.keys())
+    max = 0
+    min = np.inf
+    for point in pointlist:
+        print(data[point])
 
-def triangulateSource(data, p1idx = 0, log = False):
+    1/0
+    return pointlist
+
+def triangulateSource(data, p1idx = 0, threshold=.2, log = False):
     pointList = list(data.keys())
+    #pointlist = hipassfilter(data,threshold)
     point1 = pointList[0]
     pointList[0] = pointList[p1idx]
     pointList[p1idx] = point1
@@ -46,15 +56,15 @@ def triangulateSource(data, p1idx = 0, log = False):
         for n in tqdm(np.arange(1, 5, .05)):
             A = generateA(data, pointList, n)
             b = generateb(data, pointList, n)
-            theta = (A.T*A).I*A.T*b
+            theta = (A.T@A).I@A.T@b
             originCandidate = (theta.item(0), theta.item(1))
             residual = 0
-            power1 = data[point1]
+            power1 = rss2power(data[point1])
             dist1 = pointDist(point1, originCandidate)
             #print(originCandidate)
             for point in pointList[1:]:
                 partialError = dist1/pointDist(point, originCandidate)
-                partialError = partialError - (data[point]/power1)**(1/n)
+                partialError = partialError - (rss2power(data[point])/power1)**(1/n)
                 partialError = partialError ** 2
                 residual = residual +  partialError
             if residual < bestError:
@@ -66,7 +76,7 @@ def triangulateSource(data, p1idx = 0, log = False):
     return (bestOrigin, bestError, bestN)
 
 def rss2power(rss):
-    power = 10**(rss/10)
+    power = 10**((rss)/10)
     return power
 
 def generateA(data, pointList, n):
@@ -86,15 +96,17 @@ def generateA(data, pointList, n):
 def generateb(data, pointList, n):
     point1 = pointList[0]
     bList = []
-    RHS = rss2power(data[point1])**(2/n) * (point1[0]**2+ point1[1]**2)
+    RHS = (rss2power(data[point1])**(2/n)) * (point1[0]**2+ point1[1]**2)
     for point in pointList[1:]:
-        LHS = rss2power(data[point])**(2/n) *(point[0]**2+ point[1]**2)
+        LHS = (rss2power(data[point])**(2/n)) *(point[0]**2+ point[1]**2)
         bList.append([LHS-RHS])
     return np.matrix(bList)
 
         
 
 def main():
+    # print(rss2power(-34))
+    # exit(1)
     data = parse_data.parse_data_directory("./final_lab2_data", pos=False)
     MAClist = list(data.keys())
     print(MAClist[3])
