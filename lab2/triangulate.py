@@ -8,6 +8,7 @@ import cmath
 import pandas
 import postprocess
 import sys
+import pickle
 
 def pointDist(p1, p2):
     return sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2  )
@@ -107,19 +108,38 @@ def generateb(data, pointList, n):
 def main():
     # print(rss2power(-34))
     # exit(1)
-    data = parse_data.parse_data_directory("./final_lab2_data", pos=False)
-    MAClist = list(data.keys())
-    print(MAClist[3])
-    groundSet = postprocess.pickle_to_old_format("44:91:60:d3:d6:94_pickle")
-    set1 = postprocess.pickle_to_old_format("80:e6:50:1b:a7:80_pickle")
-    set2 = postprocess.pickle_to_old_format("f8:cf:c5:97:e0:9e_pickle")
-    set3 = postprocess.pickle_to_old_format("ec:d0:9f:db:e8:1f_pickle")
-    for i, data in enumerate([groundSet, set1, set2, set3]):
-        origin, error, n = triangulateSource(data, log = True)
-        print(i)
-        print("Origin:", origin)
-        print("error:", error)
-        print("N", n)
+    # data = parse_data.parse_data_directory("./final_lab2_data", pos=False)
+    # MAClist = list(data.keys())
+    # print(MAClist[3])
+    # groundSet = postprocess.pickle_to_old_format("44:91:60:d3:d6:94_pickle")
+    # set1 = postprocess.pickle_to_old_format("80:e6:50:1b:a7:80_pickle")
+    # set2 = postprocess.pickle_to_old_format("f8:cf:c5:97:e0:9e_pickle")
+    # set3 = postprocess.pickle_to_old_format("ec:d0:9f:db:e8:1f_pickle")
+    # test_data = None
+    # with open('pickles_consolidated', 'rb') as f:
+    #     test_data = pickle.load(f)
+    # origin, error, n = triangulateSource(test_data["44:91:60:d3:d6:94"], log = True)
+    # print(origin, error, n)
+    # new_dict = {(10.0, 10.2): -50.0,
+    #             (10.3, 10.1): -50.0,
+    #             (111.1, 111.0): -100.0,
+    #             (101.1, 101.0): -100.0}
+    #             # (10.0, 100,0): -50.0}
+    test_data = parse_data.parse_data_directory("./final_lab2_data")
+    dfs = postprocess.data_to_dfs(test_data)
+    split_dfs = postprocess.split_mac_to_lines(dfs["44:91:60:d3:d6:94"])
+    all_dfs = postprocess.apply_kalman(split_dfs)
+    new_dict = {}
+    for i, row in all_dfs.iterrows():
+        new_dict[(row['x'], row['y'])] = row['rss']
+    origin, error, n = triangulateSource(new_dict, log = True)
+    print(origin, error, n)
+    # for i, data in enumerate([groundSet, set1, set2, set3]):
+    #     origin, error, n = triangulateSource(data, log = True)
+    #     print(i)
+    #     print("Origin:", origin)
+    #     print("error:", error)
+    #     print("N", n)
     #changePoint1(groundSet, 10)
 
 if __name__ == "__main__":
