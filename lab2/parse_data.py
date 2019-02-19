@@ -67,7 +67,6 @@ def parse_data_directory(directory, pos= False):
         dir_mac_data[MAC_B].update(file_mac_data[MAC_B])
         dir_mac_data[MAC_C].update(file_mac_data[MAC_C])
         dir_mac_data[MAC_GROUND].update(file_mac_data[MAC_GROUND])
-    #flippedData = flipData(dir_mac_data)
     return dir_mac_data
 
 def flipData(data):

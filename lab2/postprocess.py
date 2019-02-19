@@ -24,43 +24,39 @@ floorplan_runs = {
 
 def visualize(data):
     for key in data:
-        # cur_mac_data = data[key]
-        # num_vals = len(cur_mac_data.keys())
-        # sorted_points = sorted(cur_mac_data.keys())
+        # dictionary methods
+        cur_mac_data = data[key]
+        num_vals = len(cur_mac_data.keys())
+        sorted_points = sorted(cur_mac_data.keys())
 
-        # x_vals = np.empty(num_vals)
-        # y_vals = np.empty(num_vals)
-        # rss_vals = np.empty(num_vals)
+        x = np.empty(num_vals)
+        y = np.empty(num_vals)
+        rss = np.empty(num_vals)
 
-        # for i, point in enumerate(sorted_points):
-            # print(i, point, cur_mac_data[point])
-            # x_vals[i] = point[0]
-            # y_vals[i] = point[1]
-            # rss_vals[i] = cur_mac_data[point]
+        for i, point in enumerate(sorted_points):
+            x[i] = point[0]
+            y[i] = point[1]
+            rss[i] = cur_mac_data[point][0]
 
-        
-        x = data[key]['x']
-        y = data[key]['y']
-        rss = data[key]['rss']
+        # DataFrame methods
+        # x = data[key]['x']
+        # y = data[key]['y']
+        # rss = data[key]['rss']
+
         cmap = cm.get_cmap('Reds')
-        normalize = mp.colors.Normalize(vmin=min(rss), vmax=max(rss))
+        normalize = mp.colors.Normalize(vmin=-110, vmax=0)
         colors = [cmap(normalize(value)) for value in rss]
 
         fig, ax = plt.subplots(figsize=(10,10))
         plt.xlabel("x")
         plt.ylabel("y")
         plt.title(key)
-        plt.scatter(x, y, s=1, c=rss, cmap=cmap)
-        # plotting ground truth and other point
-        # if key == '44:91:60:d3:d6:94':
-        plt.scatter([-22],[162], c="blue")
-        plt.scatter([143],[175], c="green")
+        plt.scatter(x, y, c=colors, cmap=cmap)
             
-
         cax, _ = mp.colorbar.make_axes(ax)
         cbar = mp.colorbar.ColorbarBase(cax, cmap=cmap, norm=normalize)
         # plt.savefig("fig_"+key+".jpeg", dpi=500)
-        plt.show()
+    return fig, ax
 
 
 def data_to_dfs(data):
@@ -75,7 +71,6 @@ def data_to_dfs(data):
         rss_vals = np.empty(num_vals)
 
         for i, point in enumerate(sorted_points):
-            # print(i, point, cur_mac_data[point])
             x_vals[i] = point[0]
             y_vals[i] = point[1]
             rss_vals[i] = cur_mac_data[point]
@@ -98,16 +93,10 @@ def sliding_window_clean(dfs):
                 (cur_df['x'] > x_val-win_size/2) & \
                 (cur_df['y'] < y_val+win_size/2) & \
                 (cur_df['y'] > y_val-win_size/2)
-            
-            # log number matching
-            # unique, counts = np.unique(logical_window, return_counts=True)
-            # print(dict(zip(unique, counts)))
 
             in_window = cur_df[logical_window]
-            #Q1 = in_window['rss'].quantile(0.25)
-            #Q3 = in_window['rss'].quantile(0.75)
-            Q1 = in_window['rss'].quantile(0.1)
-            Q3 = in_window['rss'].quantile(0.6)
+            Q1 = in_window['rss'].quantile(0.25)
+            Q3 = in_window['rss'].quantile(0.75)
             IQR = Q3 - Q1
             to_remove = in_window[(in_window['rss'] < (Q1 - 1.5 * IQR)) | (in_window['rss'] > (Q3 + 1.5 * IQR))]
             indices_to_remove.extend(to_remove.index.values)
@@ -130,8 +119,8 @@ def pickle_to_old_format(file_path):
 def apply_kalman(split_dfs):
     sys.path.append('./kalmanjs/contrib/python/')
     import kalman
-    KFilter = kalman.KalmanFilter(0.008, 0.1)
     for run in split_dfs:
+        KFilter = kalman.KalmanFilter(0.008, 0.1)
         cur_df = split_dfs[run]
         num_vals = cur_df.shape[0]
         for i, row in cur_df.iterrows():
@@ -144,7 +133,6 @@ def apply_kalman(split_dfs):
 def split_mac_to_lines(mac_df):
     split_dfs = {}
     for run in floorplan_runs:
-        print(run)
         endpoints = floorplan_runs[run]
         if endpoints['xstart'] < endpoints['xend']:
             xwindow = (mac_df['x'] > endpoints['xstart']) & \
@@ -161,27 +149,56 @@ def split_mac_to_lines(mac_df):
                 (mac_df['y'] >= endpoints['yend'])
         logical_window = xwindow & ywindow
             
-        # log number matching
-        # unique, counts = np.unique(logical_window, return_counts=True)
-        # print(dict(zip(unique, counts)))
         in_window = mac_df[logical_window] 
-        print(in_window.shape)
+        in_window['run'] = run
         split_dfs[run] = in_window
     return split_dfs
 
+
+def summary_stats_on_runs(split_dfs):
+    for run in split_dfs:
+        cur_df = split_dfs[run]
+        print(run)
+        print(max(cur_df['rss']), min(cur_df['rss']), np.median(cur_df['rss']), np.std(cur_df['rss']))        
+
+
+def normalize_rss(df):
+    nscores = (df['rss'] - min(df['rss'])) / (max(df['rss']) - min(df['rss']))
+    df['old_rss'] = df['rss']
+    df['nscore'] = nscores
+    df['rss'] = (1 - nscores) * -110
+    return df
+
+def select_high_confs(df):
+    runs = set(floorplan_runs.keys())
+    selected_points = []
+    for run in runs:
+        window = (df['run'] == run)
+        in_window = df[window] 
+        selected_points.append(in_window.nlargest(1, 'nscore'))
+    return pd.concat(selected_points)
+
 def main():
-    print("hi")
+    print("hi, my name is process. post process")
+
+    # tag by leg and normalize test
     test_data = parse_data.parse_data_directory("./final_lab2_data")
     dfs = data_to_dfs(test_data)
-    split_dfs = split_mac_to_lines(dfs["44:91:60:d3:d6:94"])
-    all_dfs = apply_kalman(split_dfs)
+    full_df= pd.concat(split_mac_to_lines(dfs["44:91:60:d3:d6:94"]).values())
+    df = normalize_rss(full_df)
+    select_high_confs(df)
+
+    # applying kalman test
+    # all_dfs = apply_kalman(split_dfs)
+
+    # visualize test
     # new_dict = {}
     # for i, row in df.iterrows():
-    #     new_dict[(row['x'], row['y'])] = row['rss']
+    #     new_dict[(row['x'], row['y'])] = (row['rss'], row['nscore'])
     # print(all_dfs)
-    visualize({"44:91:60:d3:d6:94": all_dfs})
+    # visualize({"44:91:60:d3:d6:94": all_dfs})
 
-
+    # sliding window test
     # sliding_window_clean(dfs)
     # old_format_pickle = pickle_to_old_format("./44:91:60:d3:d6:94_pickle")
     # visualize(test_data)
